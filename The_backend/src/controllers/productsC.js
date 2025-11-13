@@ -1,5 +1,23 @@
+
+import mongoose from 'mongoose';
 import Product from '../models/Product.js';
 import Category from '../models/Category.js';
+
+
+ const resolveCategory = async (categoryInput) => {
+  if (!categoryInput) return null;
+
+  if (mongoose.Types.ObjectId.isValid(categoryInput)) {
+    const byId = await Category.findById(categoryInput);
+    if (byId) return byId;
+  }
+
+  const byName = await Category.findOne({ name: categoryInput });
+  if (byName) return byName;
+
+  return null;
+};
+
 
 export const listProducts = async (req, res) => {
     try{ 
@@ -7,9 +25,7 @@ export const listProducts = async (req, res) => {
         const query = {};
 
         if(category){
-            const cat = await Category.findOne({
-                $or: [{ _id: category}, {name: category}],
-            });
+            const cat = await resolveCategory(category);
             if(!cat){
           return res.status(400).json({message: "Category not found"}); }
             query.category = cat._id;
@@ -44,16 +60,12 @@ export const createProduct = async (req, res) => {
         if(!title || !slug || price == null || !category){
             return res.status(400).json({message: "Missing required fields"});
         }
-        let cat = null;
-        if(category){
-            cat = await Category.findOne({
-                $or: [{_id: category}, {name: category}],
-            });
-        }
+     const cat = await resolveCategory(category);
+       
         if(!cat) return res.status(400).json({message: "Category not found"});
-        const existing = await Product.findOne({slug});
+        const existing = await Product.findOne({ slug });
         if(existing){
-            return res.status(400).json({message: "Slug alredy exists"});
+            return res.status(400).json({message: "Slug already exists"});
         }
 const product = await Product.create({
       title,
@@ -67,7 +79,7 @@ const product = await Product.create({
       metadata,
     });
 
-    const populated = await product.populate("category", "name").execPopulate?.() || await Product.findById(product._id).populate("category", "name");
+    const populated = await Product.findById(product._id).populate("category", "name");
     res.status(201).json(populated);
   } catch (err) {
     console.error("createProduct error:", err);
@@ -90,9 +102,7 @@ export const updateProduct = async (req, res) => {
 
     
     if (updates.category) {
-      const cat = await Category.findOne({
-        $or: [{ _id: updates.category }, { name: updates.category }],
-      });
+    const cat = await resolveCategory(updates.category);    
       if (!cat) return res.status(400).json({ message: "Category not found" });
       updates.category = cat._id;
     }
