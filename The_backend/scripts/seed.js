@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import Category from "../src/models/Category.js";
 
 dotenv.config();
-mongoose.connect(process.env.MONGO_URL, )
+mongoose.connect(process.env.MONGO_URL)
 
 const categories = [
     {name: "Men"},
@@ -25,5 +25,6 @@ const seed = async () => {
         process.exit(1);
     }
 };
-seed();
+
+connectDB().then(seed);
 
