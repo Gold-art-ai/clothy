@@ -103,7 +103,7 @@ export const updateProduct = async (req, res) => {
     
     if (updates.category) {
     const cat = await resolveCategory(updates.category);    
-      if (!cat) return res.status(400).json({ message: "Category not found" });
+      if (!cat) return res.status(404).json({ message: "Category not found" });
       updates.category = cat._id;
     }
 
