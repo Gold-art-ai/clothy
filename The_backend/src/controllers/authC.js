@@ -12,6 +12,7 @@ export const registerUser = async (req, res) =>{
     const user = await User.create({ name, email, password});
     res.status(201).json({ token: generateToken(user._id) });
 };
+
 export const loginUser = async (req, res) =>{
      const { email, password } = req.body;
 
@@ -23,6 +24,7 @@ export const loginUser = async (req, res) =>{
 
   res.json({ token: generateToken(user._id) });
 };
+
 export const getMe = async (req, res) => {
   const user = await User.findById(req.user.id).select("-password");
   res.json(user);

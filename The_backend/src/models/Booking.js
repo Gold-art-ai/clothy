@@ -7,10 +7,5 @@ const bookingSchema = new mongoose.Schema(
     quantity: {type: Number, default: 0, min: 1},
     totalPrice: {type: Number, default: 0},
     status: {type: String, enum: ['pending', 'confirmed', 'canceled'], default: 'pending'},
-}, {timestamps: true
-    
-}
-);
-
-
+}, {timestamps: true});
 export default mongoose.model("Booking", bookingSchema);
