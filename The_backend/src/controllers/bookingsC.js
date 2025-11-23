@@ -38,4 +38,44 @@ res.status(201).json(populated);
         console.error("createBooking error: ", err);
         res.status(500).json({message: "server error"});
     }};
+export const listBookings = async (req, res)=>{
+    try{
+       const {mine} = req.query;
+       let filter = {};
+       if(String(mine) === "1" && req.user){
+        filter.user = req.user._id;
+       }
+       let bookings = await Booking.find(filter)
+       .populate("product", "title price images")
+       .populate("user", "name email")
+       .sort({createdAt: -1})
+       .limit(100);
+       res.json(bookings);
+
+    }catch(err){
+        res.status(500).json({message: "server error"});
+    }
+}
+
+export const getBooking = async (req, res) =>{
+    try{
+        const {id} = req.params;
+        const booking = await Booking.findById(id)
+        .populate("product", "title price images")
+        .populate("user", "name email");
+        if(!booking) return res.status(404).json({message: "Booking not found"});
+      
+        if(req.user){
+            const isOwner = booking.product.owner && booking.product.owner.toString() === req.user._id.toString();
+            const isBooker= booking.user._id.toString() === req.user._id.toString()
+            if(!isOwner && isBooker){
+                return res.status(403).json({message: "Forbidden"});
+            }
+            res.json(booking);
+        }
+    }catch(err){
+        console.error("getBooking error: ", err);
+        res.status(500).json({message: "Server error"});
+    }
+}
    
