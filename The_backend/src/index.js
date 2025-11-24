@@ -5,6 +5,7 @@ import productRoutes from "./routes/products.js";
 import {connectDB} from "./config/db.js";
 import authRoutes from "./routes/auth.js";
 import categoryRoutes from "./routes/categories.js";
+import bookingRoutes from "./routes/bookings.js";
 
 dotenv.config();
 const app= express();
@@ -12,7 +13,7 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/products", productRoutes);
-
+app.use("/api/bookings", bookingRoutes);
 
 await connectDB();
 
