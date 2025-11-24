@@ -79,10 +79,30 @@ export const getBooking = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
-export const confirmBookings = (req,res,next) =>{
+export const confirmBookings = async (req,res) =>{
     try{
-
-    } catch(err){
+   const {id} = req.params;
+   const booking = await Booking.findById(id)
+   .populate("product")
+   .populate("user")
+   if(!booking) return res.status(404).json({message: "Booking not found!", booking});
+   booking.status("comfirmed");
+   booking.save();
+   res.json({message: "Booking Confirmed"});
+  } catch(err){
      res.status(500).json({message: "Server error"});
     }
-} 
+};
+
+export const cancelBooking = async (req,res) => {
+    try{
+        const {id} = req.params;
+        const booking = await Booking.findById(id).populate("product").populate("user");
+       if (!booking) return res.status(404).json({message: "Booking not found", booking});
+       booking.status("Cancelled!");
+       booking.save();
+      res.json({message: "Booking cancelled"});
+    }catch(err){
+     res.status(500).json({message: "Server error"});
+    }
+}
